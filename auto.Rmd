@@ -5,18 +5,43 @@ date: "Saturday, April 25, 2015"
 output: html_document
 ---
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+## Introduction and Explorative Data Analysis
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+Let us first explore the mtcars dataset.
 
 ```{r}
-summary(cars)
+data(mtcars)
+str(mtcars)
+sum(is.na(mtcars)) # number of null values
+nrow(mtcars) # total number of observations
+mean(mtcars$mpg) # mean mpg
+sum(mtcars$am) # number of cars with manual transmission
 ```
 
-You can also embed plots, for example:
+possible confounders: weight, horsepower or displacement or number of cylinders
 
-```{r, echo=FALSE}
-plot(cars)
+nested likelihood ratio tests:
+```{r}
+mtcars$am <- factor(mtcars$am)
+fit1 <- lm(mpg ~ am, data = mtcars)
+fit2 <- update(fit1, mpg ~ am + hp)
+fit3 <- update(fit1, mpg ~ am + hp + wt)
+anova(fit1, fit2, fit3)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+choose the third model
+
+```{r}
+fit <- lm(mpg ~ am + hp + wt, data = mtcars)
+summary(fit)
+```
+
+
+* interpret coefficients
+* exploratory data analysis
+* fit multiple models and detail their strategy for model selection
+* answer the questions of interest (or detail why the question is not answerable)
+* residual plot and some diagnostics
+* quantify the uncertainty in the conclusions and/or perform an inference
+* report < 2 page, including appendix of figures < 5 page
+* executive summary
