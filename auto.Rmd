@@ -1,12 +1,12 @@
 ---
-title: "The Relations between Automobile's Gas Mileage and Transmissions"
+title: "The Relations between Automobile's Gas Mileage and Transmission Types"
 author: "Taedong Yun"
 output: pdf_document
 ---
 
 ## Overview and Explorative Analysis
 
-In this article we analyze the relationship between various functional aspects of automobiles. In particular we study the relationship between a set of variables and miles per gallon (MPG) of a car. We will try to answer the following two questions in this report.
+In this article we analyze the relationship between various functional aspects of automobiles. In particular we study the relationship between a set of variables and miles per gallon (MPG) of a car. We seek to answer the following two questions:
 
 1. Is an automatic or manual transmission better for MPG?
 2. If so, what is the MPG difference between automatic and manual transmissions?
@@ -15,13 +15,13 @@ Throughout this report we will use the `mtcars` dataset, about which you can fin
 
 ```{r, results='hide'}
 data(mtcars)
-names(mtcars) # see variables in the data set
+names(mtcars) # variables in the data set
 n <- nrow(mtcars); n # total number of observations
 c(mean(mtcars$mpg), sd(mtcars$mpg)) # mean and st.dev of MPG
 c(sum(mtcars$am), n - sum(mtcars$am)) # number of cars with manual vs automatic trans.
 ```
 
-In our dataset we have `11` variables including MPG, transmission type, horsepower, etc. and there are `32` observations in total. The mean MPG is `20.091` and st. dev is `6.027`. Among the `32`observations `13` cars were manual and `19` were automatic.
+In our dataset we have `11` variables including MPG, transmission type, horsepower, etc. and there are `32` observations in total. The mean MPG is `20.09` and the MPG standard deviation is `6.027`. Among the `32` observations, `13` cars were manual and `19` were automatic.
 
 ## Model Selection
 
@@ -40,17 +40,27 @@ summary(fit1)
 
 From this model we obtain the slope coefficient `7.245` with an extremely low p-value of `0.000285`. Recall that when linear regression is applied to a factor variable, the slope coefficient is the expected difference of the outcomes in the two groups. Hence, without considering other variables, the expected MPG of the cars with manual transmission is `7.245` higher than the automatic cars, with significantly low p-value.
 
-However, there are many other possible confounders in the data set we are considering. We know (from physics) that the weight and the horsepower of a car will affect the MPG of the car. Henve, let us consider the linear models containing these two (continuous) variables.
+However, there are many other possible confounders in the data set we are considering. We know (from physics) that the weight and the horsepower of a car will affect the MPG of the car. Hence, let us consider the linear models containing these two (continuous) variables.
 
 ```{r, results='hide'}
 fit2 <- update(fit1, mpg ~ am + hp)
 fit3 <- update(fit1, mpg ~ am + hp + wt)
 anova(fit1, fit2, fit3)
 ```
+```{r}
+## Analysis of Variance Table
+## Model 1: mpg ~ am
+## Model 2: mpg ~ am + hp
+## Model 3: mpg ~ am + hp + wt
+##   Res.Df    RSS Df Sum of Sq      F    Pr(>F)    
+## 1     30 720.90                                  
+## 2     29 245.44  1    475.46 73.841 2.445e-09
+## 3     28 180.29  1     65.15 10.118  0.003574 
+```
 
-The above R code compares the three linear models: (MPG vs Transmission), (MPG vs Transmission and Horsepower), and (MPG vs Transmission, Horsepower, and Weight), by the **nested likelihood ratio tests**. From this we obtain the p-value of `2.445e-09` when comparing the first and the second model, and the p-value of `0.003574` when comparing the second and third model, both of which are less than `0.01`. From this we choose the third linear model where we have all three variables.
+The above R code compares the three linear models -- (MPG vs Transmission), (MPG vs Transmission and Horsepower), and (MPG vs Transmission, Horsepower, and Weight) -- by a **nested likelihood ratio test**. We obtain the p-value of `2.445e-09` when comparing the first and the second model, and the p-value of `0.003574` when comparing the second and third model, both of which are less than `0.01`. From this we choose the third linear model where we have all three variables.
 
-Figure 1 in appendix shows the **residual plots** for the linear model with three variables we chose. We can confirm that there are no strong patterns in the figures.
+Figure 1 in Appendix shows the **residual plots** for the linear model with three variables we chose. We can confirm that there are no strong patterns in the figures.
 
 ## Results and Summary
 
@@ -68,33 +78,27 @@ summary(fit)
 ## wt          -2.878575   0.904971  -3.181 0.003574 
 ```
 
-Again, recall that the slope coeffient `2.084` of the Transmission variable in this linear model indicates the difference between the expected MPGs when *the horsepower and the weight variable is fixed*. This is one possible answer for the Question 2.
+Again, recall that the slope coeffient `2.084` of the Transmission variable in this linear model indicates the difference between the expected MPGs when *both the horsepower and the weight variable are fixed*. This is a candidate for the answer of Question 2.
 
-However, as opposed to the previous linear model we considered with no other confounding variables, the p-value for the slope coefficient in this model is `0.1413`, which not low enough to reject the null hypothesis. This implies that we cannot conlude from our data set that the cars with manual transmission has better MPG than the cars with automatic transmission.
+However, as opposed to the previous linear model we considered with no confounding variables, the p-value for the slope coefficient in this model is `0.1413`, which not low enough to reject the null hypothesis of the slope being zero. This implies that **we cannot conlude from our data set that the cars with manual transmission has better MPG than the cars with automatic transmission**.
+
+One possible explanation for why we were unable to answer our questions is that the number of observations were small relative to the relevant variables. The data set contains only `32` observations, from which we had to identify three variables: transmission type, horsepower, and weight.
 
 \newpage
 
 ## Appendix
 
 ```{r, fig.height=6}
+# Residual Plots
 par(mfrow=c(2, 2))
 res <- resid(fit3)
 plot(as.vector(mtcars$am), res, main='Residual Plot for Transmission Type',
-     xlab='Transmission Type', ylab='Residuals')
+     xlab='Transmission Type', ylab='Residual')
 legend("top", legend=c("0 Automatic", "1 Manual"))
 plot(mtcars$hp, res, main='Residual Plot for Horsepower',
-     xlab='Horsepower', ylab='Residuals')
+     xlab='Horsepower', ylab='Residual')
 plot(mtcars$wt, res, main='Residual Plot for Weight',
-     xlab='Weight (1000 lb)', ylab='Residuals')
+     xlab='Weight (1000 lb)', ylab='Residual')
 ```
 
 \center{FIGURE 1. Residual Plots}
-
-* interpret coefficients
-* exploratory data analysis
-* fit multiple models and detail their strategy for model selection
-* answer the questions of interest (or detail why the question is not answerable)
-* residual plot and some diagnostics
-* quantify the uncertainty in the conclusions and/or perform an inference
-* report < 2 page, including appendix of figures < 5 page
-* executive summary
