@@ -60,7 +60,7 @@ anova(fit1, fit2, fit3)
 
 The above R code compares the three linear models -- (MPG vs Transmission), (MPG vs Transmission and Horsepower), and (MPG vs Transmission, Horsepower, and Weight) -- by a **nested likelihood ratio test**. We obtain the p-value of `2.445e-09` when comparing the first and the second model, and the p-value of `0.003574` when comparing the second and third model, both of which are less than `0.01`. From this we choose the third linear model where we have all three variables.
 
-Figure 1 in Appendix shows the **residual plots** for the linear model with three variables we chose. We can confirm that there are no strong patterns in the figures.
+**Figure 1** in Appendix shows the **residual plots** for the linear model with three variables we chose. We can confirm that there are no strong patterns in the figures.
 
 ## Results and Summary
 
